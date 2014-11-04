@@ -3,11 +3,12 @@
 基于canvas的擦除效果
 
 ## 使用
+
 * 引入jQuery或zepto
 
 * 引入zWiper.js
 
-* ````
+````
 zWiper('.container',{
     touchSupport : true,
     lineCap : 'round', //笔触形状
@@ -22,6 +23,7 @@ zWiper('.container',{
 ````
 
 ## 参数说明
+
 `zWiper(element, config);`
 
 `element` 为目标选择器，如 '.box', '#box', 'div'等
