@@ -11,11 +11,11 @@
 ````
 zWiper('.container',{
     touchSupport : true,
-    lineCap : 'round', //笔触形状
-    shadowColor : "#000000", //笔触阴影
-    shadowBlur: 30, //笔触阴影大小
-    imgSrc : './2.jpg', //图片地址
-    lineColor: "rgba(0,0,0,1)",  //笔触阴影
+    lineCap : 'round',
+    shadowColor : "#000000",
+    shadowBlur: 30,
+    imgSrc : './2.jpg',
+    lineColor: "rgba(0,0,0,1)",
     lineWidth : 80,
     mode : 'destination-out',
     imgNatureWidth : true
