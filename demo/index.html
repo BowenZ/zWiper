@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Demo</title>
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+    html,
+    body {
+        width: 100%;
+        height: 100%;
+    }
+    body {
+        overflow: hidden;
+    }
+    .container {
+        width: 960px;
+        height: 540px;
+        background-image: url('1.jpg');
+        background-size: contain;
+    }
+    form{
+        width: 960px;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+    
+    </style>
+</head>
+
+<body>
+	<div class="container"></div>
+    <form>
+        <fieldset>
+            <legend>修改下列属性查看效果</legend>
+            <div>
+                <span>鼠标状态下是否点击绘画：</span>
+                <label for="needClick0">NO</label>
+                <input type="radio" name="needClick" value="0" checked id="needClick0">
+                &nbsp;&nbsp;&nbsp;
+                <label for="needClick1">YES</label>
+                <input type="radio" name="needClick" value="1" id="needClick1">
+            </div>
+            <div>
+                <span>笔触形状：</span>
+                <select name="" id="lineCap">
+                    <option value="butt">butt</option>
+                    <option value="round" selected>round</option>
+                    <option value="square">square</option>
+                </select>
+            </div>
+            <div>
+                <span>笔触阴影：</span>
+                <input type="range" min="0" max="100" id="shadowBlur">
+                <span class="rangeVal">50</span>
+            </div>
+            <div>
+                <span>笔触大小：</span>
+                <input type="range" min="0" max="200" id="lineWidth">
+                <span class="rangeVal">100</span>
+            </div>
+            <div>
+                <span>擦除模式：</span>
+                <select name="" id="mode">
+                    <option value="source-over">source-over</option>
+                    <option value="source-atop">source-atop</option>
+                    <option value="source-in">source-in</option>
+                    <option value="source-out">source-out</option>
+                    <option value="destination-over">destination-over</option>
+                    <option value="destination-atop">destination-atop</option>
+                    <option value="destination-in">destination-in</option>
+                    <option value="destination-out" selected>destination-out</option>
+                    <option value="lighter">lighter </option>
+                    <option value="copy">copy </option>
+                    <option value="source-over">source-over</option>
+                </select>
+            </div>
+            <button>修改</button>
+        </fieldset>
+    </form>
+</body>
+<script src="jquery-1.11.1.js"></script>
+<script src='zWiper.js'></script>
+<script>
+var foo = zWiper('.container',{
+    clickToDraw: false,
+    touchSupport : true,
+    lineCap : 'round',
+    shadowColor : "#000000",
+    shadowBlur: 50,
+    imgSrc : './2.jpg',
+    lineColor: "rgba(0,0,0,1)",
+    lineWidth : 100,
+    mode : 'destination-out',
+    imgNatureWidth : true
+});
+
+$('input[type="range"]').change(function(){
+    $(this).next('.rangeVal').text($(this).val())
+});
+
+$('button').click(function(event) {
+    var clickToDraw = !!($('input[name="needClick"]:checked').val() - 0);
+    var lineCap = $('#lineCap').find('option:selected').val();
+    var shadowBlur = $('#shadowBlur').val();
+    var lineWidth = $('#lineWidth').val();
+    var mode = $('#mode').find('option:selected').val();
+
+    console.log(clickToDraw, lineCap, shadowBlur, lineWidth, mode);
+    foo.destroy();
+    foo = zWiper('.container',{
+        clickToDraw: clickToDraw,
+        touchSupport : true,
+        lineCap : lineCap,
+        shadowColor : "#000000",
+        shadowBlur: shadowBlur,
+        imgSrc : './2.jpg',
+        lineColor: "rgba(0,0,0,1)",
+        lineWidth : lineWidth,
+        mode : mode,
+        imgNatureWidth : true
+    });
+    return false;
+});
+</script>
+
+</html>

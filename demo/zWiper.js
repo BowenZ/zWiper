@@ -9,6 +9,7 @@
         return;
     }
     var config = {
+        clickToDraw: false,
         touchSupport: true,
         lineCap: 'round',
         shadowColor: "#000000",
@@ -20,45 +21,137 @@
         imgNatureWidth: true
     };
     var $element;
-    var canvas1, canvas2, ctx1, ctx2, image, cX = null,
-        cY = null,
-        moveData = [],
-        eventDate = 0,
-        flag = true;
+    var canvas1, canvas2, ctx1, ctx2, image, cX, cY, moveData, flag;
+    var mouseEvent = (function() {
+        var eventTouchStartType,
+            eventTouchLeaveType,
+            eventTouchMoveType,
+            eventTouchEnterType,
+            eventTouchEndType;
+
+        if (window.navigator.pointerEnabled) {
+            eventTouchStartType = 'pointerdown';
+            eventTouchLeaveType = 'pointerout';
+            eventTouchMoveType = 'pointermove';
+            eventTouchEnterType = 'pointerover';
+            eventTouchEndType = 'pointerup';
+        } else if (window.navigator.msPointerEnabled) {
+            eventTouchStartType = 'MSPointerDown';
+            eventTouchLeaveType = 'MSPointerOut';
+            eventTouchMoveType = 'MSPointerMove';
+            eventTouchEnterType = 'MSPointerOver';
+            eventTouchEndType = 'MSPointerUp';
+        } else if ('ontouchend' in window) {
+            eventTouchStartType = 'touchstart';
+            eventTouchLeaveType = 'touchleave ';
+            eventTouchMoveType = 'touchmove';
+            eventTouchEnterType = 'touchstart';
+            eventTouchEndType = 'touchend touchcancel';
+        } else {
+            eventTouchStartType = 'mousedown';
+            eventTouchLeaveType = 'mouseout';
+            eventTouchMoveType = 'mousemove';
+            eventTouchEnterType = 'mouseover';
+            eventTouchEndType = 'mouseup';
+        }
+
+        return {
+            start: eventTouchStartType,
+            leave: eventTouchLeaveType,
+            move: eventTouchMoveType,
+            enter: eventTouchEnterType,
+            end: eventTouchEndType
+        };
+    })();
 
     window.zWiper = function(element, options) {
         $element = $(element);
         $.extend(config, options);
         initWipe();
+        return {
+            rebuild: function(){
+                destroy();
+                initWipe();
+            },
+            destroy: destroy
+        };
     }
 
     function initWipe() {
+        cX = null, cY = null, moveData = [], flag = true;
         draw();
-        $element.mousemove(function(eve) {
-            cX = eve.clientX;
-            cY = eve.clientY;
-            // console.log(cX,cY);
-            eventDate = Date.now();
-            flag || draw();
-        });
+        if(config.clickToDraw){
+            $element.on(mouseEvent.start, function(eve) {
+                eve.preventDefault();
+                moveData.splice(0, 2);
+                cX = eve.clientX;
+                cY = eve.clientY;
+                moveData.push({
+                    time: Date.now(),
+                    x: cX,
+                    y: cY
+                });
+                $element.on(mouseEvent.move, function(eve) {
+                    eve.preventDefault();
+                    cX = eve.clientX;
+                    cY = eve.clientY;
+                    // console.log(cX,cY);
+                    flag || draw();
+                });
+                $element.on(mouseEvent.end, function(eve) {
+                    eve.preventDefault();
+                    $element.unbind(mouseEvent.move);
+                });
+                flag || draw();
+            });
+        }else{
+            $element.mousemove(function(eve) {
+                cX = eve.clientX;
+                cY = eve.clientY;
+                // console.log(cX,cY);
+                flag || draw();
+            });
+        }
+        
         if (config.touchSupport && 'ontouchstart' in window) {
-            $element.on('touchstart touchmove', function(eve) {
+            $element.on('touchstart', function(eve) {
+                eve.preventDefault();
+                moveData.splice(0, 2);
+                var eve = eve.originalEvent.changedTouches[0];
+                cX = eve.clientX;
+                cY = eve.clientY;
+                moveData.push({
+                    time: Date.now(),
+                    x: cX,
+                    y: cY
+                });
+                flag || draw();
+            });
+            $element.on('touchmove', function(eve) {
                 eve.preventDefault();
                 var eve = eve.originalEvent.changedTouches[0];
                 cX = eve.clientX;
                 cY = eve.clientY;
-                eventDate = Date.now();
                 flag || draw()
             });
         }
+
         // $(window).on("blur mouseout", function() {
         //     // cY = cX = null
         // });
         $(window).on("resize", function() {
             canvas1 && canvas1.parentNode && canvas1.parentNode.removeChild(canvas1);
+            cX = null, cY = null;
             createCanvas();
         });
         createCanvas();
+    }
+
+    function destroy(){
+        $element.unbind();
+        $(window).unbind();
+        $(canvas1).remove();
+        $(canvas2).remove();
     }
 
     function createCanvas() {
